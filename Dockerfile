@@ -1,14 +1,16 @@
-# Використання базового образу Ubuntu
-FROM ubuntu:latest
 
-# Оновлення пакетів та встановлення Apache2
-RUN apt-get update && \
-    apt-get install -y apache2 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
 
-# Копіювання конфігураційного файлу в образ
-COPY apache2.conf /etc/apache2/apache2.conf
+
+# Використання базового образу Alpine
+ARG NGINX_VERSION=latest
+FROM alpine:${NGINX_VERSION}
+
+# Встановлення пакетів Nginx та supervisord
+RUN apk update && apk add nginx supervisor
+
+# Копіювання конфігураційних файлів в образ
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY supervisord.conf /etc/supervisord.conf
 
 # Вказання команд, які будуть виконані при старті контейнера
-CMD ["apache2ctl", "-D", "FOREGROUND"]
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
